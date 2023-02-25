@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const app = express()
 const port = 3000
+const crypto = require('crypto');
 
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
@@ -16,7 +17,8 @@ app.get('/', (req, res) => {
 
 
 const { MongoClient } = require("mongodb");
-const uri = "mongodb://Sarus:000000@localhost:27017/?authMechanism=DEFAULT&authSource=admin";
+// const uri = "mongodb://Sarus:000000@localhost:27017/?authMechanism=DEFAULT&authSource=admin";
+    const uri = "mongodb://127.0.0.1:27017";
 const connectDB = async () => {
     try {
         const client = new MongoClient(uri);
@@ -30,7 +32,7 @@ connectDB();
 
 
 // Read All API
-app.get('/complaints', async (req, res) => {
+app.get('/admin', async (req, res) => {
     const client = new MongoClient(uri);
     await client.connect();
     const objects = await client.db('admin').collection('Restaurant')
@@ -41,7 +43,7 @@ app.get('/complaints', async (req, res) => {
 })
 
 // Create API
-app.post('/complaints/create', async (req, res) => {
+app.post('/admin/create', async (req, res) => {
     const object = req.body;
     const client = new MongoClient(uri);
     await client.connect();
@@ -50,6 +52,7 @@ app.post('/complaints/create', async (req, res) => {
         "Type": object.Type,
         "Tel": object.Tel,
         "Opening": object.Opening,
+        "Id_note": object.Id_note,
 });
     await client.close();
     res.status(200).send({
@@ -62,7 +65,7 @@ app.post('/complaints/create', async (req, res) => {
 
 // Update API
 const { ObjectId } = require('mongodb')
-app.put('/complaints/update', async (req, res) => {
+app.put('/admin/update', async (req, res) => {
     const object = req.body;
     const id = object._id;
     const client = new MongoClient(uri);
@@ -74,6 +77,7 @@ app.put('/complaints/update', async (req, res) => {
             "Type": object.Type,
             "Tel": object.Tel,
             "Opening": object.Opening,
+            "Id_note": object.Id_note,
         }
         });
         
@@ -86,7 +90,7 @@ app.put('/complaints/update', async (req, res) => {
 })
 
 // Delete API
-app.delete('/complaints/delete', async(req, res) => {
+app.delete('/admin/delete', async(req, res) => {
     const id = req.body._id;
     const client = new MongoClient(uri);
     await client.connect();
@@ -98,7 +102,7 @@ app.delete('/complaints/delete', async(req, res) => {
     })
 
 // Read by id API
-app.get('/complaints/:id', async (req, res) => {
+app.get('/admin/:id', async (req, res) => {
     const id = req.params.id;
     const client = new MongoClient(uri);
     await client.connect();
@@ -112,7 +116,7 @@ app.get('/complaints/:id', async (req, res) => {
 })
 
 // Read by id API
-app.get('/complaints/findtext/:searchText', async (req, res) => {
+app.get('/admin/findtext/:searchText', async (req, res) => {
     const { params } = req;
     const searchText = params.searchText
     const client = new MongoClient(uri);
@@ -127,7 +131,7 @@ app.get('/complaints/findtext/:searchText', async (req, res) => {
 })
 
 // Query by filter API: Search text from Product Name
-app.get('/complaints/Type/:searchText', async (req, res) => {
+app.get('/admin/Type/:searchText', async (req, res) => {
     const { params } = req;
     const searchText = params.searchText
     const client = new MongoClient(uri);
@@ -142,13 +146,11 @@ app.get('/complaints/Type/:searchText', async (req, res) => {
 })
 
 // Create API assessment
-app.post('/', async (req, res) => {
+app.post('/admin/Data', async (req, res) => {
     const object = req.body;
     const client = new MongoClient(uri);
     await client.connect();
     await client.db('admin').collection('Data').insertOne({
-        "id_name": object.id_name,
-        "id_old": object.id_old,
         "id_restaurant": object.id_restaurant,
         "id_type": object.id_type,
         "id_quality": object.id_quality,
@@ -161,7 +163,75 @@ app.post('/', async (req, res) => {
 
 })
 
+// Read All API
+app.get('/admin2', async (req, res) => {
+    const client = new MongoClient(uri);
+    await client.connect();
+    const objects = await client.db('admin').collection('Data')
+        .find({}).sort({ "Date received": -1 }).toArray();
 
+    await client.close();
+    res.status(200).send(objects);
+})
+
+// Work 1 THB Per 1 Line
+app.post('/register', async (req, res) => {
+    const object = req.body
+    object.r_password = crypto.createHash('sha256').update(object.r_password).digest('hex');
+    const client = new MongoClient(uri);
+    await client.connect();
+    check_user = await client.db('admin').collection('membership').find({ "r_name": object.r_name }).toArray();
+    if (check_user.length > 0) {
+        res.status(200).send({
+            "status": "error",
+            "message": "User is already exist"
+        });
+        return;
+    } else {
+        await client.db('admin').collection('membership').insertOne({
+            "r_name": object.r_name,
+            "r_email": object.r_email,
+            "r_password": object.r_password,
+            "r_role": object.r_role
+        });
+        await client.close();
+        res.status(200).send({
+            "status": "ok",
+            "message": "Object is created",
+            "object": object
+        });
+    }
+})
+
+app.post('/login', async (req, res) => {
+    const object = req.body;
+    object.r_password = crypto.createHash('sha256').update(object.r_password).digest('hex');
+    const client = new MongoClient(uri);
+    await client.connect();
+    results = await client.db('admin').collection('membership').find({
+        "r_name": object.r_name,
+    }).toArray();
+    if (results.length == 0) {
+        res.status(200).send({
+            "status": "error",
+            "message": "Username or Password is incorrect"
+        });
+    } else {
+        if (results[0].r_password == object.r_password) {
+            res.status(200).send({
+                "status": "ok",
+                "message": "Login success",
+                "object": [results[0]["r_name"], results[0]["r_role"]]
+            });
+        } else {
+            res.status(200).send({
+                "status": "error",
+                "message": "Username or Password is incorrect"
+            });
+        }
+    }
+    await client.close();
+})
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)

@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Wu Assessment</title>
+    <title>Assessment-Wu</title>
     <link href="css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.js"
@@ -38,7 +38,10 @@
 
 <style>
     body {
-        background-color: rgb(214, 214, 214)
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+        background: linear-gradient(#dabbe9, #f3e1bf, #b9c5e7 , #b9e7cc);
     }
 
     #piechartTimelyResponse {
@@ -51,15 +54,29 @@
         height: 300px;
     }
 
+    .form-control{
+        width: 100%;
+        background: linear-gradient(#faedff , #fff5e4  , #e8faff , #e7ffe6  );
+    }
+
 </style>
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Navbar Brand-->
-        <a class="navbar-brand ps-3" href="index.html">Wu Assessment</a>
+        <a class="navbar-brand ps-3"style="color: #ff8111;" href="index.html">WU Assessment</a>
         <!-- Sidebar Toggle-->
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
                 class="fas fa-bars"></i></button>
+        <div class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+            <img src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" class="img-fluid rounded-circle" width="40px" alt="Responsive image">
+        </div>
+        <div class="d-none d-md-inline-block form-inline me-0 me-md-3 my-2 my-md-0">
+            <h1 id="username_show" class="text-white"></h1>
+        </div>
+        <div class="d-none d-md-inline-block form-inline me-0 me-md-3 my-2 my-md-0">
+            <button class="btn btn-primary" id="logout" onclick="logout();">ลงชื่อออก</button>
+        </div>
 
     </nav>
     <div id="layoutSidenav">
@@ -67,20 +84,25 @@
             <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">Core</div>
-                        <a class="nav-link" href="dashboard.html">
+                        <div class="sb-sidenav-menu-heading">ย้อนกลับ</div>
+                        <a class="nav-link" href="index.html">
+                            <div class="sb-nav-link-icon"><i class="fas fa-arrow-left"></i></div>
+                            ย้อนกลับ
+                        </a>
+
+                        <div class="sb-sidenav-menu-heading">Report</div>
+                        <a class="nav-link" href="dashboard_admin.html">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
                         </a>
-
-                        <div class="sb-sidenav-menu-heading">Addons</div>
-                        <a class="nav-link" href="charts.html">
+                        <a class="nav-link" href="data_assessment.html">
                             <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                            Charts
+                            ภาพรวมการประเมิน
                         </a>
-                        <a class="nav-link" href="tables.html">
-                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                            Tables
+                        <div class="sb-sidenav-menu-heading">Retrospective Report</div>
+                        <a class="nav-link" href="charts_admin.html">
+                            <div class="sb-nav-link-icon"><i class="fas fa-school"></i></div>
+                            รายงานหอพักย้อนหลัง
                         </a>
                     </div>
                 </div>
@@ -120,7 +142,7 @@
                         <tbody id="mytable">
                             <tr>
                                 <th scope="row" colspan="5">
-                                    <font color="#00ffae">กำลังโลหด...</font>
+                                    <font color="#00ffae">loading...</font>
                                 </th>
                             </tr>
                         </tbody>
@@ -130,7 +152,7 @@
         </div>
     </div>
 
-<!-- Load -->
+
 
     <script src="index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.16/dist/sweetalert2.all.min.js"></script>
@@ -145,5 +167,22 @@
     <script src="assets/demo/chart-bar-demo.js"></script>
     <script src="assets/demo/chart-pie-demo.js"></script>
 </body>
+<script>
+    window.onload = function () {
+        if (localStorage.getItem("role") == "admin") {
+            console.log("admin")
+        } else if (localStorage.getItem("role") == "restaurant") {
+            window.location.href = "charts.html";
+        } else {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+        document.getElementById("username_show").innerHTML = localStorage.getItem("username");
+    }
 
+    function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+    }
+</script>
 </html>

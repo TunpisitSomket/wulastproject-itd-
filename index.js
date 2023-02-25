@@ -5,13 +5,13 @@ google.charts.setOnLoadCallback(loadTable);
 
 function loadTable() {
     const xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "http://localhost:3000/complaints");
+    xhttp.open("GET", "http://localhost:3000/admin");
     xhttp.send();
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             var trHTML = '';
             var num = 1;
-            const objects = JSON.parse(this.responseText);  
+            const objects = JSON.parse(this.responseText);
             for (let object of objects) {
 
                 trHTML += '<tr>';
@@ -39,13 +39,13 @@ function loadQueryTable() {
     const searchText = document.getElementById('searchTextBox').value;
 
     const xhttp = new XMLHttpRequest();
-    if (searchText == ""){
+    if (searchText == "") {
         window.location.reload();
-    } eles 
-    xhttp.open("GET", "http://localhost:3000/complaints/findtext/" + searchText);
+    } eles
+    xhttp.open("GET", "http://localhost:3000/admin/findtext/" + searchText);
 
     xhttp.send();
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             var trHTML = '';
             var num = 1;
@@ -62,7 +62,7 @@ function loadQueryTable() {
                 trHTML += '<a type="button" class="btn btn-outline-danger" onclick="compliantDelete(\'' + object['_id'] + '\')"><i class="fas fa-trash"></i></a></td>';
                 trHTML += "</tr>";
                 num++;
-            
+
 
             }
             console.log(trHTML);
@@ -72,91 +72,6 @@ function loadQueryTable() {
     };
 }
 
-function loadGraph() {
-    var hhh = 1;
-    var Cha = 1;
-    var d = 0;
-    var other = 0;
-
-
-    var hhh = 1;
-    var Cha = 1;
-    var d = 0;
-    var other = 0;
-
-    const xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "http://localhost:3000/complaints/");
-    xhttp.send();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            const objects = JSON.parse(this.responseText);
-            for (let object of objects) {
-                switch (object['Name']) {
-                    case "hhh":
-                        hhh = hhh + 1;
-                        break;
-                        case "Cha":
-                        Cha = Cha + 1;
-                        break;
-                        case "d":
-                        d = d + 1;
-                        break;
-                    default:
-                        other = other + 1;
-                        break;
-                }
-
-                switch (object['Type']) {
-                    case "hhh":
-                        hhh = hhh + 1;
-                        break;
-                        case "Cha":
-                        Cha = Cha + 1;
-                        break;
-                        case "d":
-                        d = d + 1;
-                    default:
-                        other = other+ 1;
-                        break;
-                }
-            }
-
-            var TimelyResponseData = google.visualization.arrayToDataTable([
-                ['Name', 'Case'],
-                ['hhh', hhh],
-                ['Cha', Cha],
-                ['d', d],
-                ['Other', other]
-
-            ]);
-
-            var optionsTimelyResponse = { title: 'ประเภทเนื้อหาแอพพลิเคชั่นทั้งหมด' };
-            var chartTimelyResponse = new google.visualization.PieChart(document.getElementById('piechartTimelyResponse'));
-            chartTimelyResponse.draw(TimelyResponseData, optionsTimelyResponse);
-
-            var dataSubmitted = google.visualization.arrayToDataTable([
-                ['Type', 'Number', {
-                    role: 'style'
-                }, {
-                    role: 'annotation'
-                }],
-                ['1.', rrr, 'color: #FF2C2C', 'rrr'],
-                ['Other', other, 'color: #25F4BC', 'Other']
-            ]);
-
-            var optionSubmitted = {
-                title: '10 อันดับ แอพพลิเคชั่น Business ยอดนิยม เพื่อทำให้กาทำธุระกิจง่ายขึ้น',
-                legend: { position: 'none' }
-            };
-
-            var chartSubmitted = new google.visualization.BarChart(document.getElementById('barchartSubmitted'));
-            chartSubmitted.draw(dataSubmitted, optionSubmitted);
-        }
-    };
-
-
-}
-
 function showCompliantCreateBox() {
 
     var d = new Date();
@@ -164,11 +79,19 @@ function showCompliantCreateBox() {
 
     Swal.fire({
         title: 'เพิ่มข้อมูลร้าน',
-        html:'<div class="mb-3"><label for="Name" class="form-label">Name</label>' +
+        html: '<div class="mb-3"><label for="Name" class="form-label">Name</label>' +
             '<input class="form-control" id="Name" placeholder=" Name"></div>' +
 
             '<div class="mb-3"><label for="Type" class="form-label">Type</label>' +
-            '<input class="form-control" id="Type" placeholder=" Type"></div>' +
+            '<select class="form-select" id="Type" for="Type" aria-label="Default select example" placeholder=" Name">' +
+            '<option selected disabled>Select Type</option>' +
+            '<option value="อาหารตามสั่ง">อาหารตามสั่ง</option>' +
+            '<option value="ข้าวราดแกง">ข้าวราดแกง</option>' +
+            '<option value="ก๋วยเตี๋ยว">ก๋วยเตี๋ยว</option>' +
+            '<option value="เครื่องดื่ม">เครื่องดื่ม</option>' +
+            ' <option value="อาหารทานเล่น">อาหารทานเล่น</option>' +
+            '</select>' +
+            '</div>' +
 
             '<div class="mb-3"><label for="Tel" class="form-label">Tel</label>' +
             '<input class="form-control" id="Tel" placeholder=" Tel"></div>' +
@@ -198,7 +121,7 @@ function compliantCreate() {
     }));
 
     const xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "http://localhost:3000/complaints/create");
+    xhttp.open("POST", "http://localhost:3000/admin/create");
     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhttp.send(JSON.stringify({
         "Name": Name,
@@ -206,7 +129,7 @@ function compliantCreate() {
         "Tel": Tel,
         "Opening": Opening,
     }));
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             const objects = JSON.parse(this.responseText);
             Swal.fire(
@@ -222,12 +145,12 @@ function compliantCreate() {
 function compliantDelete(id) {
     console.log("Delete: ", id);
     const xhttp = new XMLHttpRequest();
-    xhttp.open("DELETE", "http://localhost:3000/complaints/delete");
+    xhttp.open("DELETE", "http://localhost:3000/admin/delete");
     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhttp.send(JSON.stringify({
         "_id": id
     }));
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
         if (this.readyState == 4) {
             const object = JSON.parse(this.responseText);
             console.log(object);
@@ -244,9 +167,9 @@ function compliantDelete(id) {
 function showCompliantEditBox(id) {
     console.log("edit", id);
     const xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "http://localhost:3000/complaints/" + id);
+    xhttp.open("GET", "http://localhost:3000/admin/" + id);
     xhttp.send();
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             const object = JSON.parse(this.responseText).object;
             console.log("showCompliantEditBox", object);
@@ -257,13 +180,22 @@ function showCompliantEditBox(id) {
                     '<input class="form-control" id="Name" placeholder="Name" value="' + object['Name'] + '"></div>' +
 
                     '<div class="mb-3"><label for="Type" class="form-label">Type</label>' +
-                    '<input class="form-control" id="Type" placeholder="Type" value="' + object['Type'] + '"></div>'+
-
+                    '<select class="form-select" id="Type" for="Type" aria-label="Default select example" placeholder=" Name">' +
+                    '<option selected disabled>Select Type</option>' +
+                    '<option value="อาหารตามสั่ง">อาหารตามสั่ง</option>' +
+                    '<option value="ข้าวราดแกง">ข้าวราดแกง</option>' +
+                    '<option value="ก๋วยเตี๋ยว">ก๋วยเตี๋ยว</option>' +
+                    '<option value="เครื่องดื่ม">เครื่องดื่ม</option>' +
+                    ' <option value="อาหารทานเล่น">อาหารทานเล่น</option>' +
+                    '</select>' +
+                    '</div>' +
+                    
                     '<div class="mb-3"><label for="Tel" class="form-label">Tel</label>' +
-                    '<input class="form-control" id="Tel" placeholder="Tel" value="' + object['Tel'] + '"></div>'+
+                    '<input class="form-control" id="Tel" placeholder="Tel" value="' + object['Tel'] + '"></div>' +
 
                     '<div class="mb-3"><label for="Opening" class="form-label">Opening</label>' +
                     '<input class="form-control" id="Opening" placeholder="Opening" value="' + object['Opening'] + '"></div>',
+
 
                 focusConfirm: false,
                 preConfirm: () => {
@@ -290,7 +222,7 @@ function userEdit() {
     }));
 
     const xhttp = new XMLHttpRequest();
-    xhttp.open("PUT", "http://localhost:3000/complaints/update");
+    xhttp.open("PUT", "http://localhost:3000/admin/update");
     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhttp.send(JSON.stringify({
         "_id": id,
@@ -300,7 +232,7 @@ function userEdit() {
         "Opening": Opening,
     }));
 
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             const objects = JSON.parse(this.responseText);
             Swal.fire(
